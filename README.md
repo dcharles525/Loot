@@ -14,6 +14,7 @@ I want to obviously make this readme less bad, but also add a few more features 
 
 - [ ] Cleanup (I had no idea what I was doing with Charm initially)
 - [ ] Write the DB/Log file to a safe location by default
+- [ ] Styling 
 - [ ] Add ability to add long form documentation to each command
 - [ ] Emulate alias functionality for luls, so `loot <command name>`
 
