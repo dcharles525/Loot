@@ -1,64 +1,59 @@
-package main
+package data
 
 import (
 	"log"
-	
-	structs "loot/structs"
 
-	tea "github.com/charmbracelet/bubbletea"
+	"loot/structs"
+
 	"github.com/charmbracelet/bubbles/list"
+	tea "github.com/charmbracelet/bubbletea"
 	bolt "go.etcd.io/bbolt"
 )
 
 type errMsg struct{ error }
 
-func openDB()*bolt.DB{
-	db, dbError := bolt.Open("commands.db", 0600, nil)
+const dbFile = "commands.db"
+const bucketName = "commands"
 
+func openDB() *bolt.DB {
+	db, dbError := bolt.Open(dbFile, 0600, nil)
 	if dbError != nil {
 		log.Fatal(dbError)
 	}
-
 	return db
 }
 
-func closeDB(db *bolt.DB){
+func closeDB(db *bolt.DB) {
 	db.Close()
 }
 
-func GetAllItems()[]list.Item{
+func GetAllItems() ([]list.Item, error) {
 	db := openDB()
+	defer closeDB(db)
 	items := []list.Item{}
-
 	db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte("commands"))
-	 
+		bucket := tx.Bucket([]byte(bucketName))
 		if bucket != nil {
 			bucket.ForEach(func(key, value []byte) error {
 				items = append(
-					items, 
+					items,
 					structs.Item{
-						CommandTitle: string(key), 
-						CommandDesc: string(value),
+						CommandTitle: string(key),
+						CommandDesc:  string(value),
 					},
 				)
 				return nil
 			})
 		}
-
 		return nil
 	})
-	
-	closeDB(db)
-
-	return items
+	return items, nil
 }
 
 func CreateCommand(title string, command string) tea.Cmd {
 	db := openDB()
-
 	updateError := db.Update(func(tx *bolt.Tx) error {
-		bucket, bucketError := tx.CreateBucketIfNotExists([]byte("commands"))
+		bucket, bucketError := tx.CreateBucketIfNotExists([]byte(bucketName))
 		if bucketError != nil {
 			return bucketError
 		}
@@ -68,41 +63,35 @@ func CreateCommand(title string, command string) tea.Cmd {
 		}
 		return nil
 	})
-	
 	closeDB(db)
-	
+
 	return func() tea.Msg {
 		if updateError != nil {
 			return errMsg{updateError}
 		}
-
 		return structs.UpdateCommandMsg{}
 	}
 }
 
 func DeleteCommand(command string) tea.Cmd {
 	db := openDB()
-
 	updateError := db.Update(func(tx *bolt.Tx) error {
-		bucket, bucketError := tx.CreateBucketIfNotExists([]byte("commands"))
+		bucket, bucketError := tx.CreateBucketIfNotExists([]byte(bucketName))
 		if bucketError != nil {
 			return bucketError
 		}
-		
 		deleteError := bucket.Delete([]byte(command))
 		if deleteError != nil {
 			return deleteError
 		}
 		return nil
 	})
-	
 	closeDB(db)
-	
+
 	return func() tea.Msg {
 		if updateError != nil {
 			return errMsg{updateError}
 		}
-
 		return structs.UpdateCommandMsg{}
 	}
 }
