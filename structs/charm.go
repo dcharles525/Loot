@@ -1,10 +1,16 @@
 package structs
 
-import (
-	"github.com/charmbracelet/bubbles/key"
-)
+import "github.com/charmbracelet/bubbles/key"
 
 type Mode int
+
+const (
+	Nav Mode = iota
+	Edit
+	CreateTitle
+	CreateCommand
+)
+
 type UpdateCommandMsg struct{}
 
 type Keymap struct {
@@ -16,7 +22,6 @@ type Keymap struct {
 	Quit   key.Binding
 }
 
-// Keymap reusable key mappings shared across models
 var Keymaps = Keymap{
 	Create: key.NewBinding(
 		key.WithKeys("c"),
