@@ -2,6 +2,8 @@ package data
 
 import (
 	"log"
+	"os"
+	"path/filepath"
 
 	"loot/structs"
 
@@ -16,7 +18,9 @@ const dbFile = "commands.db"
 const bucketName = "commands"
 
 func openDB() *bolt.DB {
-	db, dbError := bolt.Open(dbFile, 0600, nil)
+	//R/W db file within the .loot directory
+	homeDir, _ := os.UserHomeDir()
+	db, dbError := bolt.Open(filepath.Join(homeDir, ".loot", dbFile), 0600, nil)
 	if dbError != nil {
 		log.Fatal(dbError)
 	}
