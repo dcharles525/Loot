@@ -13,7 +13,7 @@ To use this app you can just clone the repo, and run `go run .` for development 
 I want to obviously make this readme less bad, but also add a few more features to it
 
 - [X] Cleanup (I had no idea what I was doing with Charm initially)
-- [ ] Write the DB/Log file to a safe location by default
+- [x] Write the DB/Log file to a safe location by default
 - [ ] Styling 
 - [ ] Add ability to add long form documentation to each command
 - [ ] Emulate alias functionality for luls, so `loot <command name>`
